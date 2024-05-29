@@ -121,13 +121,13 @@ body {
 .calculator_display {
   background-color: #222222;
   color: #fff;
-  font-size: 1.714285714em;
-  padding: 0.5em 0.75em;
+  font-size: 1.514285714em;
+  padding: 1.5em 0.75em;
   text-align: right;
 }
 
 .calculator_keys {
-  background-color: #999;
+  background-color: #fff;
   display: grid;
   grid-gap: 0.5 px;
   
@@ -156,20 +156,20 @@ body {
   z-index: 1;
 }
 
-.key-operator {
-  background-color: #eee;
-}
 
 .key--equal {
-  background-image: linear-gradient(to bottom, #fe886a, #ff335c);
+  background-image: linear-gradient(to bottom, #fe886a, hsl(348, 100%, 52%));
   
 }
-
 </style>
+
+
+
 <body>
     <div class="calculator">
         <div class="calculator_display">0</div>
         <div class="calculator_keys">
+       
             <button>7</button>
             <button>8</button>
             <button>9</button>
@@ -178,23 +178,27 @@ body {
             <button>5</button>
             <button>6</button>
             <button></button>
+            
             <button>1</button>
-            <button>2 </button>
-            <button>3 </button>
+            <button>2</button>
+            <button>3</button>
+         
+
             <button></button>
             <button>0</button>
+            <button data-action="decimal">.</button>
             <button></button>
             <button></button>
-            <button></button>
-            <button class="key-operator"    data-action="add">+</button>
-            <button class="key-operator"    data-action="subtract">-</button>
-            <button class="key-operator"    data-action="multiply">*</button>
-            <button class="key-operator"    data-action="divide">/ </button>
-            <button                         data-action="decimal">.</button>
+           
+            <button class="key-operator"  data-action="add"> + </button>
+            <button class="key-operator"  data-action="subtract"> -</button>
+            <button class="key-operator"  data-action="multiply"> *</button>
+            <button class="key-operator"  data-action="divide"> / </button>
+            
                                 
-
             <button class="key--equal"      data-action="calculate"> = </button>
-            <button                         data-action="turnOff"> Turn Off </button>
+            <button class="turnOff" data-action="turnOff"> Turn Off </button>
+            <button class="turnOn" data-action="turnOn" > AC  </button>
             
         </div>
 
@@ -204,84 +208,113 @@ body {
 <script>
         
         const calculate = (n1, operator, n2) => {
-        let result = ''
-        
+        let result= '';
         if (operator === 'add') {
-          result = parseFloat(n1) + parseFloat(n2) } 
-        
-        else if (operator === 'subtract') {
-        result = parseFloat(n1) - parseFloat(n2)} 
-         
-        else if (operator === 'multiply') {
-            result = parseFloat(n1) * parseFloat(n2)
-        } 
-        else if (operator === 'divide') {
-            result = parseFloat(n1) / parseFloat(n2)
+          result= parseFloat(n1) + parseFloat(n2);
         }
+  
+        else if (operator === 'subtract') 
+        {result= parseFloat(n1) - parseFloat(n2); }
+  
+
+        else if (operator === 'multiply') 
+        {result= parseFloat(n1) * parseFloat(n2);
+
+        } 
+
         
+        else if (operator === 'divide') 
+        {let divided = parseFloat(n1) /  parseFloat(n2)
+        result= divided.toFixed(2)}
         
         return result
-}
-
+};
+        
         const calculator= document.querySelector('.calculator')
         const keys= document.querySelector('.calculator_keys')
         const display= document.querySelector('.calculator_display')
 
-        keys.addEventListener('click', (e) =>{
+        keys.addEventListener('click', (e) => {
             if (e.target.matches('button')){
             const key= e.target
             const action= key.dataset.action
             const displayedNum= display.textContent
             const keyContent= key.textContent
+            const prevKey = calculator.dataset.prevKey
 
 
-       if ( action == "add" ||
-            action == "subtract"||
-            action == "multiply" ||
-            action == "divide")
-
-        {  key.classList.add('is-depressed')
-
-            calculator.dataset.prevKey='operator'
-            calculator.dataset.firstValue= displayedNum
-            calculator.dataset.operator= action
-
-        }
-
-           const prevKey= calculator.dataset.prevKey
-
-        if (!action){
-            if (displayedNum=='0' || prevKey=='operator'){
+            if (!action){
+              if (displayedNum==='0' || prevKey==='operator' || prevKey === 'calculate'){
                 display.textContent= keyContent
-            }
-
-            else{
+              }
+              else{
                 display.textContent= displayedNum + keyContent
-            }
+              }
+              calculator.dataset.prevKey = 'number' // adding this removed th error
+
+}
+
+       if ( action === "add" ||  action === "subtract"|| action === "multiply" ||
+            action === "divide")
+        
+        {
+            calculator.dataset.firstValue= displayedNum;
+            calculator.dataset.operator= action;
+            calculator.dataset.prevKey ='operator';
+
+
+           console.log('operator pressed');
+      
         }
 
-       if (action=="decimal" ){
-            display.textContent= displayedNum + '.'
-       }     
+
+
+        if (action === 'decimal') {
+                if (!displayedNum.includes('.')) {
+                    display.textContent = displayedNum + '.'
+                } else if (prevKey === 'operator') {
+                    display.textContent = '0.'
+                }
+                calculator.dataset.prevKey = 'decimal'
+            }
+
     
-       if (action== 'calculate'){
+       if (action=== 'calculate'){
         const firstValue = calculator.dataset.firstValue
         const operator = calculator.dataset.operator
         const secondValue = displayedNum
-        display.textContent= calculate(firstValue,operator,secondValue)
+        display.textContent= calculate(firstValue , operator, secondValue,)
 
+        calculator.dataset.prevKey = 'calculate'
 
-       }
-    
        
-       if (action =="turnOff"){
-        display.textContent= displayedNum*0
-        display.textContent= ' '
+}
+       Array.from(key.parentNode.children).forEach(k => k.classList.remove('is-depressed')) // added this
 
+
+
+       if (action ==="turnOff"){
+        display.textContent=''
+
+          calculator.dataset.prevKey = '';
+          calculator.dataset.firstValue = '';
+         calculator.dataset.operator = '';
 
 
 
        }
+       if (action ==="turnOn"){
+        display.textContent='0'
+               
+          calculator.dataset.prevKey = '';
+          calculator.dataset.firstValue = '';
+         calculator.dataset.operator = '';
+
+
+
+       }
+       Array.from(key.parentNode.children).forEach(k => k.classList.remove('is-depressed')) // added this
+
 
     }})
 </script>
